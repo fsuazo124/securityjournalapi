@@ -1,0 +1,111 @@
+
+//Client
+generator client {
+  provider = "prisma-client-js"
+}
+//Conection DB
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+//Model Users
+model sj_users {
+  id         Int       @id @default(autoincrement())
+  username   String    @unique
+  password   String    @unique
+  first_name String
+  last_name  String
+  profile    sj_profile?
+  news       sj_news[]
+  created_At DateTime  @default(now())
+  updated_At DateTime  @updatedAt
+}
+
+//Model Profile
+model sj_profile {
+  id          Int            @id @default(autoincrement())
+  title       String
+  description String
+  user   sj_users @relation(fields: [userId], references: [id])
+  userId Int  @unique
+  permissions sj_permissions[] 
+}
+
+//Model Permissions
+model sj_permissions {
+  id      Int      @id @default(autoincrement())
+  create  Boolean  @default(false)
+  read    Boolean  @default(false)
+  update  Boolean  @default(false)
+  delete  Boolean  @default(false)
+  profile sj_profile @relation(fields: [profileId], references: [id])
+  profileId Int
+}
+
+// Modelo sj_news
+model sj_news {
+  id          Int            @id @default(autoincrement())
+  description String
+  approved_by String?
+  status      Status
+  user        sj_users       @relation(fields: [user_id], references: [id])
+  user_id     Int
+  posta       sj_posta       @relation(fields: [postaId], references: [id])
+  postaId     Int
+  type_new    sj_type_new    @relation(fields: [id_type_new], references: [id])
+  id_type_new Int
+  attachments sj_attachment[] 
+  created_At  DateTime       @default(now())
+  updated_At  DateTime       @updatedAt
+}
+
+enum Status {
+  CREADO
+  CANCELADO
+}
+
+//Model Posta
+model sj_posta {
+  id         Int       @id @default(autoincrement())
+  name       String    @unique
+  location   String?
+  company    Company
+  news       sj_news[]
+  created_At DateTime  @default(now())
+  updated_At DateTime  @updatedAt
+}
+
+enum Company {
+  MELYFOODS
+  SEMIG
+  INTERBAI
+}
+
+//Model Type New
+model sj_type_new {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String
+  priority    Priority
+  news        sj_news[]
+  created_At  DateTime  @default(now())
+  updated_At  DateTime  @updatedAt
+}
+
+enum Priority {
+  BAJA
+  NORMAL
+  ALTA
+  URGENTE
+}
+
+// Modelo sj_attachment
+model sj_attachment {
+  id         Int      @id @default(autoincrement())
+  url        String
+  news       sj_news  @relation(fields: [newsId], references: [id])
+  newsId     Int
+  created_At DateTime @default(now())
+  updated_At DateTime @updatedAt
+}

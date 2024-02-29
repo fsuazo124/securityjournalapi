@@ -8,6 +8,8 @@ async function bootstrap() {
   //Prefijo de las rutas 
   app.setGlobalPrefix('sj/api')
   
+
+
   //Validacion de Pipes Global
   app.useGlobalPipes( 
     new ValidationPipe({
