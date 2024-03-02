@@ -1,8 +1,8 @@
-
 //Client
 generator client {
   provider = "prisma-client-js"
 }
+
 //Conection DB
 datasource db {
   provider = "mysql"
@@ -11,53 +11,53 @@ datasource db {
 
 //Model Users
 model sj_users {
-  id         Int       @id @default(autoincrement())
-  username   String    @unique
-  password   String    @unique
+  id         Int        @id @default(autoincrement())
+  username   String     @unique 
+  password   String     @unique
   first_name String
   last_name  String
-  profile    sj_profile?
+  profile    sj_profile @relation(fields: [id_profile], references: [id])
+  id_profile Int        @unique
   news       sj_news[]
-  created_At DateTime  @default(now())
-  updated_At DateTime  @updatedAt
+  created_At DateTime   @default(now())
+  updated_At DateTime   @updatedAt
 }
 
 //Model Profile
 model sj_profile {
-  id          Int            @id @default(autoincrement())
-  title       String
+  id          Int             @id @default(autoincrement())
+  title       String          @unique
   description String
-  user   sj_users @relation(fields: [userId], references: [id])
-  userId Int  @unique
-  permissions sj_permissions[] 
+  user        sj_users?
+  permissions sj_permissions?
 }
 
 //Model Permissions
 model sj_permissions {
-  id      Int      @id @default(autoincrement())
-  create  Boolean  @default(false)
-  read    Boolean  @default(false)
-  update  Boolean  @default(false)
-  delete  Boolean  @default(false)
-  profile sj_profile @relation(fields: [profileId], references: [id])
-  profileId Int
+  id        Int        @id @default(autoincrement())
+  create    Boolean    @default(false)
+  read      Boolean    @default(false)
+  update    Boolean    @default(false)
+  delete    Boolean    @default(false)
+  profile   sj_profile @relation(fields: [profileId], references: [id])
+  profileId Int        @unique
 }
 
 // Modelo sj_news
 model sj_news {
-  id          Int            @id @default(autoincrement())
+  id          Int             @id @default(autoincrement())
   description String
   approved_by String?
   status      Status
-  user        sj_users       @relation(fields: [user_id], references: [id])
+  user        sj_users        @relation(fields: [user_id], references: [id])
   user_id     Int
-  posta       sj_posta       @relation(fields: [postaId], references: [id])
+  posta       sj_posta        @relation(fields: [postaId], references: [id])
   postaId     Int
-  type_new    sj_type_new    @relation(fields: [id_type_new], references: [id])
+  type_new    sj_type_new     @relation(fields: [id_type_new], references: [id])
   id_type_new Int
-  attachments sj_attachment[] 
-  created_At  DateTime       @default(now())
-  updated_At  DateTime       @updatedAt
+  attachments sj_attachment[]
+  created_At  DateTime        @default(now())
+  updated_At  DateTime        @updatedAt
 }
 
 enum Status {
@@ -71,6 +71,7 @@ model sj_posta {
   name       String    @unique
   location   String?
   company    Company
+  id_company Int
   news       sj_news[]
   created_At DateTime  @default(now())
   updated_At DateTime  @updatedAt

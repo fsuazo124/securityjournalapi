@@ -2,14 +2,16 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { NewsService } from './news.service';
 import { CreateNewsDto } from './dto/create-news.dto';
 import { UpdateNewsDto } from './dto/update-news.dto';
-
+import { Company, sj_posta as PostaModel} from '@prisma/client';
 @Controller('news')
 export class NewsController {
   constructor(private readonly newsService: NewsService) {}
 
   @Post()
-  create(@Body() createNewsDto: CreateNewsDto) {
-    return this.newsService.create(createNewsDto);
+  async signupUser(
+    @Body() userData: { name: string; location: string, company: Company, id_company: number },
+  ): Promise<PostaModel> {
+    return this.newsService.create(userData);
   }
 
   @Get()
