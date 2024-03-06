@@ -12,12 +12,13 @@ datasource db {
 //Model Users
 model sj_users {
   id         Int        @id @default(autoincrement())
-  username   String     @unique 
-  password   String     @unique
+  user_name   String     @unique 
+  password   String     
   first_name String
   last_name  String
   profile    sj_profile @relation(fields: [id_profile], references: [id])
-  id_profile Int        @unique
+  id_profile Int
+  is_active Boolean @default(true)
   news       sj_news[]
   created_At DateTime   @default(now())
   updated_At DateTime   @updatedAt
@@ -28,7 +29,7 @@ model sj_profile {
   id          Int             @id @default(autoincrement())
   title       String          @unique
   description String
-  user        sj_users?
+  user        sj_users[]
   permissions sj_permissions?
 }
 

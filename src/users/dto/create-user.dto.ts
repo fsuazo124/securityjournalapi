@@ -1,51 +1,30 @@
-import { IsString, IsNotEmpty, IsArray, ValidateNested, IsBoolean } from 'class-validator';
-import { Type } from 'class-transformer';
-
-class CreatePermissionsDto {
-  @IsBoolean()
-  create: boolean;
-
-  @IsBoolean()
-  read: boolean;
-
-  @IsBoolean()
-  update: boolean;
-
-  @IsBoolean()
-  delete: boolean;
-}
-
-class CreateProfileDto {
-  @IsString()
-  @IsNotEmpty()
-  title: string;
-
-  @IsString()
-  @IsNotEmpty()
-  description: string;
-
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CreatePermissionsDto)
-  permissions: CreatePermissionsDto[];
-}
+import { IsString, IsNotEmpty, IsInt, Matches, Min, Length } from 'class-validator';
 
 export class CreateUserDto {
-  @IsString()
-  @IsNotEmpty()
-  username: string;
 
   @IsString()
   @IsNotEmpty()
+  @Length(4, 15)
+  user_name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(8, 20)
+  @Matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/, {
+    message:
+      'The password must contain at least one capital letter, one number, and one special character',
+  })
   password: string;
 
   @IsString()
+  @IsNotEmpty()
   first_name: string;
 
   @IsString()
-  last_name: string;
+  last_name?: string;
 
-  @ValidateNested()
-  @Type(() => CreateProfileDto)
-  profile: CreateProfileDto;
+  @IsInt()
+  @IsNotEmpty()
+  id_profile: number;
+
 }

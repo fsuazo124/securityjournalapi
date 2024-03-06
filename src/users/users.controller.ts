@@ -1,8 +1,7 @@
 import { CreateProfileDTO } from './dto/create-profile.dto';
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Patch, ParseIntPipe } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -13,23 +12,29 @@ export class UsersController {
     return this.usersService.createProfile(createProfileDTO);
   }
 
+  @Post('/register')
+  createUser(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.createUser(createUserDto);
+  }
+
+  @Get('/profile')
+  findAllProfile() {
+    return this.usersService.findAllProfile();
+  }
+
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  findAllUsers() {
+    return this.usersService.findAllUsers();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  @Patch('/disabled/:id')
+  disabledUser(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.disabledUser(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  @Patch('/enabled/:id')
+  enabledUser(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.enabledUser(+id);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
-  }
 }
