@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, Logger, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable, InternalServerErrorException, Logger, UnauthorizedException } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import * as bcrypt from 'bcrypt'
@@ -32,9 +32,11 @@ export class AuthService {
         }
       })
 
-      if (!userCredentials)
+      if (!userCredentials){
         throw new UnauthorizedException()
-
+      }else if(!userCredentials.is_active){
+        throw new ForbiddenException()
+      }
 
       if (!bcrypt.compareSync(password, userCredentials.password))
         throw new UnauthorizedException()
@@ -45,10 +47,9 @@ export class AuthService {
         lastName: userCredentials.last_name,
         isActive: userCredentials.is_active,
         profile: userCredentials.profile.title
-
       }
 
-      return { user, success: true };
+      return { data: user, meta: {status: 'success', message: 'Autenticación exitosa'} };
     } catch (error) {
       this.handleExceptions(error)
     }
@@ -57,7 +58,10 @@ export class AuthService {
   private handleExceptions(error: any) {
 
     if (error instanceof UnauthorizedException) {
-      throw new UnauthorizedException({ message: 'Invalid credentials', success: false });
+      throw new UnauthorizedException({ errors: [{status: 401, title: 'Credenciales inválidas. Por favor intente de nuevo', detail: ''}] });
+
+    } else if(error instanceof ForbiddenException){
+      throw new ForbiddenException({ errors: [{status: 403, title: 'Acceso denegado. Contactate con un administrador', detail: ''}] });
     }
 
     this.logger.error(error)

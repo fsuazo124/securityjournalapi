@@ -27,7 +27,7 @@ export class UsersService {
         },
       });
 
-      return { message: `${title} perfil a sido creado`, success: true };
+      return { data: '', meta:{ status: 'success',  message: `Perfil '${title}' a sido creado con éxito`} };
 
     } catch (error) {
 
@@ -44,7 +44,7 @@ export class UsersService {
         }
       })
 
-      return { allProfiles, success: true };
+      return { data: allProfiles, meta: {status: 'success', message: 'Todos los perfiles de usuarios'} };
 
     } catch (error) {
 
@@ -67,7 +67,7 @@ export class UsersService {
         },
       });
 
-      return { message: `${createdUser.user_name}: user has been created`, success: true };
+      return {data: '', meta: { status: 'success', message: `Usuario '${createdUser.user_name}' ha sido creado con éxito`} };
 
     } catch (error) {
 
@@ -93,7 +93,7 @@ export class UsersService {
         }
       });
 
-      return { allUsers, success: true };
+      return { data: allUsers, meta: {status: 'success', message: 'Todos los usuarios'} };
 
     } catch (error) {
 
@@ -111,11 +111,11 @@ export class UsersService {
       });
 
       if (!existingUser) {
-        throw new NotFoundException({ id: id });
+        throw new NotFoundException();
       }
 
       if (!existingUser.is_active) {
-        return { message: `${existingUser.user_name} user was already disabled`, success: true };
+        return { data: '', meta: {status: 'suucess', message: `Usuario '${existingUser.user_name}' ya estaba deshabilitado`} };
       }
 
       const updatedUser = await this.prisma.sj_users.update({
@@ -127,7 +127,7 @@ export class UsersService {
         },
       });
 
-      return { message: `${updatedUser.user_name} user successfully disabled`, success: true };
+      return {data: '', meta: {status: 'success', message: `Usuario '${updatedUser.user_name}' deshabilitado con éxito`} };
 
     } catch (error) {
       this.handleDbExceptions(error)
@@ -144,11 +144,11 @@ export class UsersService {
       });
 
       if (!existingUser) {
-        throw new NotFoundException({ id: id });
+        throw new NotFoundException();
       }
 
       if (existingUser.is_active) {
-        return { message: `${existingUser.user_name} user was already enabled`, success: true };
+        return { data: '', meta: {status: 'suucess', message: `Usuario '${existingUser.user_name}' ya estaba habilitado`} };
       }
 
       const updatedUser = await this.prisma.sj_users.update({
@@ -160,7 +160,7 @@ export class UsersService {
         },
       });
 
-      return { message: `${updatedUser.user_name} user successfully enabled`, success: true };
+      return {data: '', meta: {status: 'success', message: `Usuario '${updatedUser.user_name}' habilitado con éxito`} };
 
     } catch (error) {
       this.handleDbExceptions(error)
@@ -169,17 +169,18 @@ export class UsersService {
 
   private handleDbExceptions(error: any) {
 
-    const allowedErrorCodes = ['P2002', 'P2003'];
+    if(error.code === 'P2002')
+      throw new BadRequestException({ errors: [{status: 400, title: 'Ya existe un registo con este nombre de usuario o perfil', detail: error.meta}] })
 
-    if (allowedErrorCodes.includes(error.code))
-      throw new BadRequestException({ message: error.meta, success: false });
+    if(error.code === 'P2003')
+    throw new BadRequestException({ errors: [{status: 400, title: 'No existe el perfil al que quieres asociar este usuario', detail: error.meta}] })
 
     if (error instanceof NotFoundException) {
-      throw new NotFoundException({ message: 'Not found', success: false });
+      throw new NotFoundException({ errors: [{status: 404, title: 'Usuario no encontrado', detail: ''}] });
     }
 
     this.logger.error(error)
-    throw new InternalServerErrorException('Unexpected error, check server log')
+    throw new InternalServerErrorException({errors: {status: 500, title:'Unexpected error, check server log', detail: error}})
   }
 
 }

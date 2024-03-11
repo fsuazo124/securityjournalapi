@@ -1,4 +1,4 @@
-import { IsBoolean, IsNotEmpty, IsObject, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsObject, IsString, Length } from 'class-validator';
 
 class PermissionsDTO {
   @IsBoolean()
@@ -17,6 +17,7 @@ class PermissionsDTO {
 export class CreateProfileDTO {
   @IsString()
   @IsNotEmpty()
+  @Length(3, 15)
   title: string;
 
   @IsString()
