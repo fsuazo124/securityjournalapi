@@ -32,7 +32,11 @@ export class AuthService {
         }
       })
 
-      if (!userCredentials){
+      if(!userCredentials){
+        throw new UnauthorizedException()
+      }
+      
+      if (userCredentials.user_name !== user_name){
         throw new UnauthorizedException()
       }else if(!userCredentials.is_active){
         throw new ForbiddenException()
@@ -41,6 +45,7 @@ export class AuthService {
       if (!bcrypt.compareSync(password, userCredentials.password))
         throw new UnauthorizedException()
 
+      
       const user = {
         userName: userCredentials.user_name,
         firstName: userCredentials.first_name,
