@@ -84,6 +84,7 @@ export class UsersService {
           user_name: true,
           first_name: true,
           last_name: true,
+          is_active: true,
           profile: {
             select: {
               title: true,
