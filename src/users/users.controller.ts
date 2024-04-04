@@ -2,6 +2,7 @@ import { CreateProfileDTO } from './dto/create-profile.dto';
 import { Controller, Get, Post, Body, Param, Delete, Patch, ParseIntPipe } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUsersDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -30,6 +31,11 @@ export class UsersController {
   @Patch('/disabled/:id')
   disabledUser(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.disabledUser(+id);
+  }
+
+  @Patch('/update/:id')
+  async updateUser(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUsersDto) {
+    return this.usersService.updateUser(id, updateUserDto);
   }
 
   @Patch('/enabled/:id')

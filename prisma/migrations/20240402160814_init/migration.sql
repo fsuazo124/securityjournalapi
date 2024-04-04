@@ -6,6 +6,7 @@ CREATE TABLE `sj_users` (
     `first_name` VARCHAR(191) NOT NULL,
     `last_name` VARCHAR(191) NOT NULL,
     `id_profile` INTEGER NOT NULL,
+    `is_active` BOOLEAN NOT NULL DEFAULT true,
     `created_At` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_At` DATETIME(3) NOT NULL,
 
@@ -18,6 +19,8 @@ CREATE TABLE `sj_profile` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `title` VARCHAR(191) NOT NULL,
     `description` VARCHAR(191) NOT NULL,
+    `created_At` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updated_At` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `sj_profile_title_key`(`title`),
     PRIMARY KEY (`id`)

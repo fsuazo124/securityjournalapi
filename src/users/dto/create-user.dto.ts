@@ -4,7 +4,7 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty({message: "El nombre de usuario no puede estar vacio"})
-  @Length(4, 15)
+  @Length(5, 15, {message: "El nombre de usuario debe contener al menos 5 caracteres"})
   user_name: string;
 
   @IsString()

@@ -17,7 +17,7 @@ class PermissionsDTO {
 export class CreateProfileDTO {
   @IsString()
   @IsNotEmpty()
-  @Length(3, 15)
+  @Length(3, 30)
   title: string;
 
   @IsString()

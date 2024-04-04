@@ -30,6 +30,8 @@ model sj_profile {
   title       String          @unique
   description String
   user        sj_users[]
+  created_At DateTime   @default(now())
+  updated_At DateTime   @updatedAt
   permissions sj_permissions?
 }
 

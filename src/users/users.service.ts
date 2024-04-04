@@ -3,6 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateProfileDTO } from 'src/users/dto/create-profile.dto';
 import * as bcrypt from 'bcrypt'
+import { UpdateUsersDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -40,7 +41,9 @@ export class UsersService {
       const allProfiles = await this.prisma.sj_profile.findMany({
         select: {
           id: true,
-          title: true
+          title: true,
+          description: true,
+          created_At: true,
         }
       })
 
@@ -70,8 +73,31 @@ export class UsersService {
       return {data: '', meta: { status: 'success', message: `Usuario '${createdUser.user_name}' ha sido creado con éxito`} };
 
     } catch (error) {
-
+      console.log(error)
       this.handleDbExceptions(error)
+    }
+  }
+
+  async updateUser(id: number, updateUserDto: UpdateUsersDto) {
+    try {
+
+      const user = await this.prisma.sj_users.findUniqueOrThrow({
+        where: { id: id },
+      });
+
+
+      if (updateUserDto.password) {
+        updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+      }
+
+      await this.prisma.sj_users.update({
+        where: { id: id },
+        data: updateUserDto,
+      });
+
+      return { data: '', meta: { status: 'success', message: `Usuario '${user.user_name}' ha sido actualizado con éxito` } };
+    } catch (error) {
+      this.handleDbExceptions(error);
     }
   }
 
@@ -87,6 +113,7 @@ export class UsersService {
           is_active: true,
           profile: {
             select: {
+              id: true,
               title: true,
               description: true
             }
@@ -105,15 +132,11 @@ export class UsersService {
   async disabledUser(id: number) {
     try {
 
-      const existingUser = await this.prisma.sj_users.findUnique({
+      const existingUser = await this.prisma.sj_users.findUniqueOrThrow({
         where: {
           id: id,
         },
       });
-
-      if (!existingUser) {
-        throw new NotFoundException();
-      }
 
       if (!existingUser.is_active) {
         return { data: '', meta: {status: 'suucess', message: `Usuario '${existingUser.user_name}' ya estaba deshabilitado`} };
@@ -138,15 +161,11 @@ export class UsersService {
   async enabledUser(id: number) {
     try {
 
-      const existingUser = await this.prisma.sj_users.findUnique({
+      const existingUser = await this.prisma.sj_users.findUniqueOrThrow({
         where: {
           id: id,
         },
       });
-
-      if (!existingUser) {
-        throw new NotFoundException();
-      }
 
       if (existingUser.is_active) {
         return { data: '', meta: {status: 'suucess', message: `Usuario '${existingUser.user_name}' ya estaba habilitado`} };
@@ -176,9 +195,8 @@ export class UsersService {
     if(error.code === 'P2003')
     throw new BadRequestException({ errors: [{status: 400, title: 'No existe el perfil al que quieres asociar este usuario', detail: error.meta}] })
 
-    if (error instanceof NotFoundException) {
-      throw new NotFoundException({ errors: [{status: 404, title: 'Usuario no encontrado', detail: ''}] });
-    }
+    if(error.code === 'P2025')
+    throw new NotFoundException({ errors: [{status: 404, title: 'Usuario no encontrado', detail: ''}] });
 
     this.logger.error(error)
     throw new InternalServerErrorException({errors: {status: 500, title:'Unexpected error, check server log', detail: error}})
